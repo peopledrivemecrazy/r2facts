@@ -1,0 +1,36 @@
+name: r2facts
+description: Upload and download CI files to Cloudflare R2 through an r2facts Worker, authenticated with GitHub OIDC
+branding:
+  icon: upload-cloud
+  color: orange
+
+inputs:
+  url:
+    description: URL of your deployed r2facts Worker
+    required: true
+  mode:
+    description: upload, download or delete
+    required: true
+  path:
+    description: Local file or directory
+    required: false
+    default: ""
+  key:
+    description: Remote key under github/<owner>/<repo>/, e.g. candidates/<sha>
+    required: true
+  audience:
+    description: OIDC audience the Worker expects
+    required: false
+    default: r2facts
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        R2FACTS_URL: ${{ inputs.url }}
+        R2FACTS_MODE: ${{ inputs.mode }}
+        R2FACTS_PATH: ${{ inputs.path }}
+        R2FACTS_KEY: ${{ inputs.key }}
+        R2FACTS_AUDIENCE: ${{ inputs.audience }}
+      run: '"$GITHUB_ACTION_PATH/r2facts.sh"'

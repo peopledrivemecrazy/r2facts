@@ -1,0 +1,10 @@
+name = "r2facts"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+keep_vars = true
+
+[[r2_buckets]]
+binding = "BUCKET"
+
+[vars]
+AUDIENCE = "r2facts"

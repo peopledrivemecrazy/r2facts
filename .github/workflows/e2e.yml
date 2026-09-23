@@ -1,0 +1,78 @@
+name: e2e
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  roundtrip:
+    if: vars.R2FACTS_URL != ''
+    runs-on: ubuntu-latest
+    env:
+      PREFIX: e2e/${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create fixtures
+        run: |
+          mkdir -p fixture/nested
+          echo "r2facts ${{ github.sha }}" > fixture/hello.txt
+          head -c 5242880 /dev/urandom > fixture/nested/blob.bin
+
+      - name: Upload file
+        uses: ./
+        with:
+          url: ${{ vars.R2FACTS_URL }}
+          mode: upload
+          path: fixture/hello.txt
+          key: ${{ env.PREFIX }}/hello.txt
+
+      - name: Upload directory
+        uses: ./
+        with:
+          url: ${{ vars.R2FACTS_URL }}
+          mode: upload
+          path: fixture
+          key: ${{ env.PREFIX }}/fixture
+
+      - name: Download file
+        uses: ./
+        with:
+          url: ${{ vars.R2FACTS_URL }}
+          mode: download
+          path: out/hello.txt
+          key: ${{ env.PREFIX }}/hello.txt
+
+      - name: Download directory
+        uses: ./
+        with:
+          url: ${{ vars.R2FACTS_URL }}
+          mode: download
+          path: out/fixture
+          key: ${{ env.PREFIX }}/fixture
+
+      - name: Compare
+        run: |
+          cmp fixture/hello.txt out/hello.txt
+          diff -r fixture out/fixture
+
+      - name: Clean up file
+        if: always()
+        uses: ./
+        with:
+          url: ${{ vars.R2FACTS_URL }}
+          mode: delete
+          key: ${{ env.PREFIX }}/hello.txt
+
+      - name: Clean up directory
+        if: always()
+        uses: ./
+        with:
+          url: ${{ vars.R2FACTS_URL }}
+          mode: delete
+          key: ${{ env.PREFIX }}/fixture
