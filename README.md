@@ -69,6 +69,9 @@ Other settings:
   branch can overwrite an object a release job later reads. It applies to
   every repository using the Worker, and pull request runs have refs like
   `refs/pull/<n>/merge`, so list those too if they upload.
+  `pull_request_target` jobs run with the base branch's ref, so they pass
+  this check. Never let such a job run code from the pull request while it
+  can write.
 - `keep_vars = true` keeps vars set in the dashboard across deploys.
 
 ## Use the action
