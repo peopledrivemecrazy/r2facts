@@ -56,11 +56,11 @@ describe("authentication", () => {
     const put = await upload("/candidates/abc/bundle.txt", "hello r2");
     expect(put.status).toBe(201);
     expect(await put.json()).toMatchObject({
-      key: `github/${REPO}/candidates/abc/bundle.txt`,
+      key: `github.com/${REPO}/candidates/abc/bundle.txt`,
       size: 8,
     });
 
-    const stored = await testEnv.BUCKET.get(`github/${REPO}/candidates/abc/bundle.txt`);
+    const stored = await testEnv.BUCKET.get(`github.com/${REPO}/candidates/abc/bundle.txt`);
     expect(await stored?.text()).toBe("hello r2");
 
     const get = await call("GET", "/candidates/abc/bundle.txt", await tokenFor());
@@ -232,13 +232,13 @@ describe("path scoping", () => {
     expect((await upload("/shared/file.txt", "from a", await tokenFor(ownerA))).status).toBe(201);
 
     expect((await call("GET", "/shared/file.txt", await tokenFor(ownerB))).status).toBe(404);
-    expect((await call("GET", "/github/peopledrivemecrazy/repo-a/shared/file.txt", await tokenFor(ownerB))).status).toBe(404);
+    expect((await call("GET", "/github.com/peopledrivemecrazy/repo-a/shared/file.txt", await tokenFor(ownerB))).status).toBe(404);
     expect((await call("GET", "/../repo-a/shared/file.txt", await tokenFor(ownerB))).status).toBe(404);
     expect((await call("GET", "/%2e%2e/repo-a/shared/file.txt", await tokenFor(ownerB))).status).toBe(404);
 
     expect((await upload("/shared/file.txt", "from b", await tokenFor(ownerB))).status).toBe(201);
     expect((await call("DELETE", "/shared/file.txt", await tokenFor(ownerB))).status).toBe(204);
-    expect(await (await testEnv.BUCKET.get(`github/${ownerA}/shared/file.txt`))?.text()).toBe("from a");
+    expect(await (await testEnv.BUCKET.get(`github.com/${ownerA}/shared/file.txt`))?.text()).toBe("from a");
   });
 });
 

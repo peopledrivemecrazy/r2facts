@@ -16,7 +16,7 @@ inputs:
     required: false
     default: ""
   key:
-    description: Remote key under github/<owner>/<repo>/, e.g. candidates/<sha>
+    description: Remote key under github.com/<owner>/<repo>/, e.g. candidates/<sha>
     required: true
   audience:
     description: OIDC audience the Worker expects

@@ -6,7 +6,7 @@ or API keys go in any repository.
 
 - **Worker**: verifies the OIDC token (RS256 signature, issuer, audience,
   expiry, owner ID allowlist) and limits each repository to
-  `github/<owner>/<repo>/...`.
+  `github.com/<owner>/<repo>/...`.
 - **Action**: composite `upload` / `download` / `delete` using `curl` only.
   The calling job needs `permissions: id-token: write` and nothing else.
 
@@ -97,13 +97,13 @@ jobs:
           key: candidates/${{ github.sha }}
 ```
 
-| Input      | Required | Description                                                   |
-| ---------- | -------- | ------------------------------------------------------------- |
-| `url`      | yes      | Worker URL                                                    |
-| `mode`     | yes      | `upload`, `download` or `delete`                              |
-| `path`     | upload, download | Local file or directory                               |
-| `key`      | yes      | Remote key under `github/<owner>/<repo>/`                     |
-| `audience` | no       | OIDC audience, default `r2facts`                              |
+| Input      | Required         | Description                                   |
+| ---------- | ---------------- | --------------------------------------------- |
+| `url`      | yes              | Worker URL                                    |
+| `mode`     | yes              | `upload`, `download` or `delete`              |
+| `path`     | upload, download | Local file or directory                       |
+| `key`      | yes              | Remote key under `github.com/<owner>/<repo>/` |
+| `audience` | no               | OIDC audience, default `r2facts`              |
 
 - Other repositories can use the action only if this repository is public,
   or, if private, it allows access under Settings → Actions → General →
@@ -117,8 +117,8 @@ jobs:
 ## API
 
 Every request needs `Authorization: Bearer <GitHub OIDC token>`. Paths map
-to `github/<repository>/<path>`, where `<repository>` comes from the token,
-so a workflow can only reach its own repository's objects.
+to `github.com/<repository>/<path>`, where `<repository>` comes from the
+token, so a workflow can only reach its own repository's objects.
 
 | Method   | Result                                                        |
 | -------- | ------------------------------------------------------------- |

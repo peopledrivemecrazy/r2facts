@@ -30,7 +30,7 @@ export function objectKey(repository: string, pathname: string): string {
     return decoded;
   });
 
-  const key = `github/${repository}/${segments.join("/")}`;
+  const key = `github.com/${repository}/${segments.join("/")}`;
   if (new TextEncoder().encode(key).length > MAX_KEY_BYTES) throw badPath("path is too long");
   return key;
 }
