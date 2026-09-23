@@ -25,6 +25,9 @@ pnpm-debug.log*
 # Scratch
 tmp/
 
+# Tooling
+.serena/
+
 # OS / editor
 .DS_Store
 .idea/
