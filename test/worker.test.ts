@@ -242,6 +242,49 @@ describe("path scoping", () => {
   });
 });
 
+describe("write refs", () => {
+  const RELEASE_REFS = { ALLOWED_WRITE_REFS: "refs/heads/master, refs/tags/v*" };
+  const feature = { ref: "refs/heads/feature" };
+
+  async function putAs(ref: string, envOverrides: Partial<Env> = RELEASE_REFS) {
+    return call("PUT", "/candidates/abc", await tokenFor(REPO, { ref }), {
+      body: ref,
+      headers: { "content-length": String(ref.length) },
+    }, envOverrides);
+  }
+
+  it("allows any ref to write when ALLOWED_WRITE_REFS is not set", async () => {
+    expect((await putAs("refs/heads/feature", {})).status).toBe(201);
+  });
+
+  it("allows listed refs and prefix patterns to write", async () => {
+    expect((await putAs("refs/heads/master")).status).toBe(201);
+    expect((await putAs("refs/tags/v1.2.3")).status).toBe(201);
+  });
+
+  it("stops a feature branch from poisoning a release artifact", async () => {
+    expect((await putAs("refs/heads/master")).status).toBe(201);
+
+    const poisoned = await putAs("refs/heads/feature");
+    expect(poisoned.status).toBe(403);
+    expect(await errorOf(poisoned)).toBe('ref "refs/heads/feature" may not write');
+
+    const deleted = await call("DELETE", "/candidates/abc", await tokenFor(REPO, feature), {}, RELEASE_REFS);
+    expect(deleted.status).toBe(403);
+
+    const read = await call("GET", "/candidates/abc", await tokenFor(REPO, feature), {}, RELEASE_REFS);
+    expect(await read.text()).toBe("refs/heads/master");
+  });
+
+  it("does not treat a pattern without * as a prefix", async () => {
+    expect((await putAs("refs/heads/master-evil")).status).toBe(403);
+  });
+
+  it("rejects writes from a token without a ref", async () => {
+    expect((await putAs("")).status).toBe(403);
+  });
+});
+
 describe("object API", () => {
   it("reports existence and size with HEAD", async () => {
     await upload("/report.txt", "12345");

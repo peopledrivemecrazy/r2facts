@@ -63,6 +63,12 @@ Other settings:
 - `AUDIENCE` (default `r2facts`) is the OIDC audience the Worker accepts. If
   you change it, pass the same value as the action's `audience` input.
 - `MAX_UPLOAD_BYTES` (default 100 MB) caps uploads.
+- `ALLOWED_WRITE_REFS` (optional) limits `PUT` and `DELETE` to tokens whose
+  `ref` claim matches, e.g. `refs/heads/master,refs/tags/v*`. A trailing `*`
+  matches a prefix. Reads are never limited. Without it, a workflow on any
+  branch can overwrite an object a release job later reads. It applies to
+  every repository using the Worker, and pull request runs have refs like
+  `refs/pull/<n>/merge`, so list those too if they upload.
 - `keep_vars = true` keeps vars set in the dashboard across deploys.
 
 ## Use the action
@@ -131,6 +137,10 @@ Errors are JSON `{"error": "..."}` with `400` (bad path), `401` (bad
 token), `403` (owner not allowed), `404`, `411`, `413` or `503` (GitHub
 JWKS unreachable). Paths with `..`, `.`, empty segments, encoded `/` or
 `\`, or control characters are rejected.
+
+Objects are keyed by repository name, not ID. If you delete or rename a
+repository and later create another with the old name under the same owner,
+the new one can read and delete the old one's objects.
 
 ## Size limit
 

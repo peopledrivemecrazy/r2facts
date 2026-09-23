@@ -1,10 +1,12 @@
 import { errorResponse, HttpError } from "./errors";
 import { parseAllowedOwnerIds, verifyGitHubToken } from "./oidc";
 import { objectKey, rawPathname } from "./path";
+import { assertMayWrite, parseRefPatterns } from "./refs";
 
 export interface Env {
   BUCKET: R2Bucket;
   ALLOWED_OWNER_IDS?: string;
+  ALLOWED_WRITE_REFS?: string;
   AUDIENCE?: string;
   MAX_UPLOAD_BYTES?: string;
 }
@@ -40,6 +42,7 @@ async function handle(request: Request, env: Env): Promise<Response> {
     audience: env.AUDIENCE || DEFAULT_AUDIENCE,
     allowedOwnerIds,
   });
+  assertMayWrite(request.method, claims.ref, parseRefPatterns(env.ALLOWED_WRITE_REFS));
   const key = objectKey(claims.repository, rawPathname(request.url));
 
   switch (request.method) {
