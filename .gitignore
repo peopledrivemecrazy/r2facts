@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Wrangler / Workers
+.wrangler/
+.dev.vars
+.dev.vars.*
+worker-configuration.d.ts
+
+# Build & test output
+dist/
+coverage/
+*.tsbuildinfo
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Scratch
+tmp/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
